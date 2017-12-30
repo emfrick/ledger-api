@@ -14,47 +14,32 @@ type App struct {
 	Session *mgo.Session
 }
 
-func (a *App) Initialize(dbHost string) {
+func NewApp(dbHost string) *App {
+	var app = App{}
+
 	var err error
 
-	a.Router = mux.NewRouter()
-	a.Session, err = mgo.Dial(dbHost)
+	app.Router = mux.NewRouter()
+	app.Session, err = mgo.Dial(dbHost)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	a.initializeRoutes()
+	app.initializeRoutes()
+
+	return &app
 }
 
 func (a *App) Run(addr string) {
 	log.Fatal(http.ListenAndServe(addr, a.Router))
+
+	log.Printf("Started App on %s", addr)
 }
 
 func (a *App) initializeRoutes() {
 	a.Router.HandleFunc("/", a.indexHandler)
 	a.Router.HandleFunc("/error", a.errorHandler)
-}
-
-func (a *App) indexHandler(w http.ResponseWriter, r *http.Request) {
-	session := a.Session.Copy()
-	defer session.Close()
-
-	dbNames, err := session.DatabaseNames()
-
-	if err != nil {
-		writeErrorToHttp(w, http.StatusInternalServerError, "Unable to Get Database Names")
-		return
-	}
-
-	writeJsonToHttp(w, dbNames)
-}
-
-func (a *App) errorHandler(w http.ResponseWriter, r *http.Request) {
-	session := a.Session.Copy()
-	defer session.Close()
-
-	writeErrorToHttp(w, http.StatusInternalServerError, "This is the error route")
 }
 
 func writeErrorToHttp(w http.ResponseWriter, code int, message string) {

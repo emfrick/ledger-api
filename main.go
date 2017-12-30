@@ -47,10 +47,7 @@ func insertObjectIntoTable(session *mgo.Session, table string, obj interface{}) 
 func main() {
 
 	// Instantiate the App
-	app := App{}
-
-	// Initialize the App
-	app.Initialize(DATABASE_HOST)
+	app := NewApp(DATABASE_HOST)
 
 	// Run the App
 	app.Run(":3000")
