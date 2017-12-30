@@ -1,6 +1,7 @@
 package main
 
 import (
+	"net/http"
 	"time"
 
 	"gopkg.in/mgo.v2/bson"
@@ -36,3 +37,5 @@ type Transaction struct {
 	User        bson.ObjectId `json:"user_id" bson:"user_id"`
 	Tags        []string      `json:"categories" bson:"categories"`
 }
+
+type AuthorizedHttpHandlerFunc func(string, http.ResponseWriter, *http.Request)

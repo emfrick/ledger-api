@@ -23,6 +23,16 @@ func getAllObjectsFromTable(session *mgo.Session, table string, out interface{})
 	fmt.Printf("Objects: %v\n", &out)
 }
 
+func getValidUsersForProfile(session *mgo.Session, profile User, out interface{}) {
+	cSession := session.Copy()
+
+	defer cSession.Close()
+
+	c := cSession.DB(Database).C(UsersTable)
+
+	c.Find(bson.M{"sharesWith": profile.ID}).All(out)
+}
+
 func insertObjectIntoTable(session *mgo.Session, table string, obj interface{}) {
 	cSession := session.Copy()
 
@@ -54,4 +64,21 @@ func getProfileFromGoogle(accessToken string) (*GoogleProfile, error) {
 	decoder.Decode(&profile)
 
 	return &profile, nil
+}
+
+func getUserByEmail(session *mgo.Session, email string) *User {
+	cSession := session.Copy()
+
+	defer cSession.Close()
+
+	c := cSession.DB(Database).C(UsersTable)
+
+	var user User
+	err := c.Find(bson.M{"email": email}).One(&user)
+
+	if err != nil {
+		log.Fatalf("Error: %v\n", err)
+	}
+
+	return &user
 }

@@ -30,10 +30,12 @@ func (a *App) errorHandler(w http.ResponseWriter, r *http.Request) {
 	writeErrorToHttp(w, http.StatusInternalServerError, "This is the error route")
 }
 
-func (a *App) usersHandler(w http.ResponseWriter, r *http.Request) {
+func (a *App) usersHandler(email string, w http.ResponseWriter, r *http.Request) {
 	var users []User
 
-	getAllObjectsFromTable(a.Session, UsersTable, &users)
+	profile := getUserByEmail(a.Session, email)
+
+	getValidUsersForProfile(a.Session, *profile, &users)
 
 	writeJsonToHttp(w, users)
 }
