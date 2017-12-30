@@ -39,6 +39,7 @@ func (a *App) Run(addr string) {
 
 func (a *App) initializeRoutes() {
 	a.Router.HandleFunc("/", a.indexHandler)
+	a.Router.HandleFunc("/users", a.usersHandler)
 	a.Router.HandleFunc("/error", a.errorHandler)
 }
 

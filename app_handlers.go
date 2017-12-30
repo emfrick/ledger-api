@@ -22,3 +22,11 @@ func (a *App) errorHandler(w http.ResponseWriter, r *http.Request) {
 
 	writeErrorToHttp(w, http.StatusInternalServerError, "This is the error route")
 }
+
+func (a *App) usersHandler(w http.ResponseWriter, r *http.Request) {
+	var users []User
+
+	getAllObjectsFromTable(a.Session, USERS_TABLE, &users)
+
+	writeJsonToHttp(w, users)
+}
