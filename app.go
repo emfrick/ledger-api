@@ -49,7 +49,7 @@ func (a *App) initializeRoutes() {
 func (a *App) DoesProfileExist(p GoogleProfile) bool {
 
 	session := a.Session.Copy()
-	col := session.DB(DATABASE).C(USERS_TABLE)
+	col := session.DB(Database).C(UsersTable)
 
 	count, err := col.Find(bson.M{"email": p.Email}).Count()
 

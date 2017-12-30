@@ -33,7 +33,7 @@ func (a *App) errorHandler(w http.ResponseWriter, r *http.Request) {
 func (a *App) usersHandler(w http.ResponseWriter, r *http.Request) {
 	var users []User
 
-	getAllObjectsFromTable(a.Session, USERS_TABLE, &users)
+	getAllObjectsFromTable(a.Session, UsersTable, &users)
 
 	writeJsonToHttp(w, users)
 }
@@ -66,7 +66,7 @@ func (a *App) authHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println("Login")
 	} else {
 		// Register!
-		insertObjectIntoTable(a.Session, USERS_TABLE, profile)
+		insertObjectIntoTable(a.Session, UsersTable, profile)
 	}
 
 	// Create the token
@@ -78,7 +78,7 @@ func (a *App) authHandler(w http.ResponseWriter, r *http.Request) {
 	})
 
 	// Sign and get the complete encoded token as a string
-	tokenString, err := token.SignedString([]byte(SECRET_KEY))
+	tokenString, err := token.SignedString([]byte(SecretKey))
 
 	if err != nil {
 		writeErrorToHttp(w, http.StatusInternalServerError, "Error getting token")

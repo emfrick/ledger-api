@@ -15,9 +15,9 @@ func getAllObjectsFromTable(session *mgo.Session, table string, out interface{})
 
 	defer cSession.Close()
 
-	fmt.Printf("Getting Objects From Database: %v, and table: %v", DATABASE, table)
+	fmt.Printf("Getting Objects From Database: %v, and table: %v", Database, table)
 
-	c := cSession.DB(DATABASE).C(table)
+	c := cSession.DB(Database).C(table)
 
 	c.Find(bson.M{}).All(out)
 	fmt.Printf("Objects: %v\n", &out)
@@ -30,7 +30,7 @@ func insertObjectIntoTable(session *mgo.Session, table string, obj interface{}) 
 
 	fmt.Printf("Inserting %v into table %s", obj, table)
 
-	c := cSession.DB(DATABASE).C(table)
+	c := cSession.DB(Database).C(table)
 
 	err := c.Insert(obj)
 
@@ -40,7 +40,7 @@ func insertObjectIntoTable(session *mgo.Session, table string, obj interface{}) 
 }
 
 func getProfileFromGoogle(accessToken string) (*GoogleProfile, error) {
-	url := fmt.Sprintf("%s?access_token=%s", GOOGLE_PROFILE_URL, accessToken)
+	url := fmt.Sprintf("%s?access_token=%s", GoogleProfileURL, accessToken)
 	response, err := http.Get(url)
 
 	if err != nil {

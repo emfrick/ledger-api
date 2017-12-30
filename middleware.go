@@ -24,7 +24,7 @@ func TokenValidationHandler(h http.Handler) http.Handler {
 		log.Println(tokenString)
 
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-			return []byte(SECRET_KEY), nil
+			return []byte(SecretKey), nil
 		})
 
 		if err == nil && token.Valid {
