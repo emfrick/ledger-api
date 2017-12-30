@@ -1,8 +1,10 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 
 	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -35,4 +37,21 @@ func insertObjectIntoTable(session *mgo.Session, table string, obj interface{}) 
 	if err != nil {
 		log.Fatalf("Error: %v", err)
 	}
+}
+
+func getProfileFromGoogle(accessToken string) (*GoogleProfile, error) {
+	url := fmt.Sprintf("%s?access_token=%s", GOOGLE_PROFILE_URL, accessToken)
+	response, err := http.Get(url)
+
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	var profile GoogleProfile
+
+	decoder := json.NewDecoder(response.Body)
+	decoder.Decode(&profile)
+
+	return &profile, nil
 }

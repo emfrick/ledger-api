@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 
+	"gopkg.in/mgo.v2/bson"
+
 	"github.com/gorilla/mux"
 	mgo "gopkg.in/mgo.v2"
 )
@@ -40,8 +42,26 @@ func (a *App) Run(addr string) {
 func (a *App) initializeRoutes() {
 	a.Router.HandleFunc("/", a.indexHandler)
 	a.Router.Handle("/users", TokenValidationHandler(http.HandlerFunc(a.usersHandler)))
-	a.Router.HandleFunc("/auth", a.authHandler)
+	a.Router.HandleFunc("/auth", a.authHandler).Methods("POST")
 	a.Router.HandleFunc("/error", a.errorHandler)
+}
+
+func (a *App) DoesProfileExist(p GoogleProfile) bool {
+
+	session := a.Session.Copy()
+	col := session.DB(DATABASE).C(USERS_TABLE)
+
+	count, err := col.Find(bson.M{"email": p.Email}).Count()
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	if count > 0 {
+		return true
+	}
+
+	return false
 }
 
 func writeErrorToHttp(w http.ResponseWriter, code int, message string) {

@@ -33,6 +33,6 @@ type Transaction struct {
 	Description string        `json:"description" bson:"description"`
 	Date        time.Time     `json:"date" bson:"date"`
 	Amount      int64         `json:"amount" bson:"amount"`
-	User
-	Tags []string `json:"categories" bson:"categories"`
+	User        bson.ObjectId `json:"user_id" bson:"user_id"`
+	Tags        []string      `json:"categories" bson:"categories"`
 }

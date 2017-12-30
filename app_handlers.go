@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 	"time"
@@ -38,16 +39,46 @@ func (a *App) usersHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *App) authHandler(w http.ResponseWriter, r *http.Request) {
+
+	var data map[string]string
+
+	// Decode the request body
+	decoder := json.NewDecoder(r.Body)
+	decoder.Decode(&data)
+
+	// Make sure there is an access token (this would come from the OAuth provider)
+	if data["access_token"] == "" {
+		writeErrorToHttp(w, http.StatusBadRequest, "Google Access Token Required")
+		return
+	}
+
+	// Get the profile from Google
+	profile, err := getProfileFromGoogle(data["access_token"])
+
+	if err != nil {
+		writeErrorToHttp(w, http.StatusInternalServerError, "Error Getting Google Profile")
+		return
+	}
+
+	// Check if the user exists (by email)
+	if a.DoesProfileExist(*profile) {
+		// Login
+		log.Println("Login")
+	} else {
+		// Register!
+		insertObjectIntoTable(a.Session, USERS_TABLE, profile)
+	}
+
 	// Create the token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"foo": "bar",
-		"exp": time.Now().Add(time.Hour * 24).Unix(),
+		"first_name": profile.FirstName,
+		"last_name":  profile.LastName,
+		"email":      profile.Email,
+		"exp":        time.Now().Add(time.Hour * 24).Unix(),
 	})
 
 	// Sign and get the complete encoded token as a string
 	tokenString, err := token.SignedString([]byte(SECRET_KEY))
-
-	log.Println(tokenString, err)
 
 	if err != nil {
 		writeErrorToHttp(w, http.StatusInternalServerError, "Error getting token")

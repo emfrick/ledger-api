@@ -5,7 +5,8 @@ const (
 	DATABASE           = "ledger"
 	USERS_TABLE        = "users"
 	TRANSACTIONS_TABLE = "transactions"
-	SECRET_KEY		   = "SECRETKEYISHARDTOGUESS"
+	SECRET_KEY         = "SECRETKEYISHARDTOGUESS"
+	GOOGLE_PROFILE_URL = "https://www.googleapis.com/userinfo/v2/me"
 )
 
 func main() {
