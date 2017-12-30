@@ -5,6 +5,7 @@ const (
 	DATABASE           = "ledger"
 	USERS_TABLE        = "users"
 	TRANSACTIONS_TABLE = "transactions"
+	SECRET_KEY		   = "SECRETKEYISHARDTOGUESS"
 )
 
 func main() {

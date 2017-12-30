@@ -1,6 +1,12 @@
 package main
 
-import "net/http"
+import (
+	"log"
+	"net/http"
+	"time"
+
+	jwt "github.com/dgrijalva/jwt-go"
+)
 
 func (a *App) indexHandler(w http.ResponseWriter, r *http.Request) {
 	session := a.Session.Copy()
@@ -29,4 +35,25 @@ func (a *App) usersHandler(w http.ResponseWriter, r *http.Request) {
 	getAllObjectsFromTable(a.Session, USERS_TABLE, &users)
 
 	writeJsonToHttp(w, users)
+}
+
+func (a *App) authHandler(w http.ResponseWriter, r *http.Request) {
+	// Create the token
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"foo": "bar",
+		"exp": time.Now().Add(time.Hour * 24).Unix(),
+	})
+
+	// Sign and get the complete encoded token as a string
+	tokenString, err := token.SignedString([]byte(SECRET_KEY))
+
+	log.Println(tokenString, err)
+
+	if err != nil {
+		writeErrorToHttp(w, http.StatusInternalServerError, "Error getting token")
+		log.Println(err)
+		return
+	}
+
+	writeJsonToHttp(w, tokenString)
 }

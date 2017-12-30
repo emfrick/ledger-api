@@ -39,7 +39,8 @@ func (a *App) Run(addr string) {
 
 func (a *App) initializeRoutes() {
 	a.Router.HandleFunc("/", a.indexHandler)
-	a.Router.HandleFunc("/users", a.usersHandler)
+	a.Router.Handle("/users", TokenValidationHandler(http.HandlerFunc(a.usersHandler)))
+	a.Router.HandleFunc("/auth", a.authHandler)
 	a.Router.HandleFunc("/error", a.errorHandler)
 }
 
