@@ -10,9 +10,9 @@ type GoogleProfile struct {
 	ID            string `json:"id"`
 	Email         string `json:"email"`
 	VerifiedEmail bool   `json:"verified_email"`
-	FullName      string `json:"name"`
-	FirstName     string `json:"given_name"`
-	LastName      string `json:"family_name"`
+	FullName      string `json:"name" bson:"full_name"`
+	FirstName     string `json:"given_name" bson:"first_name"`
+	LastName      string `json:"family_name" bson:"last_name"`
 	ProfileLink   string `json:"link"`
 	Picture       string `json:"picture"`
 	Gender        string `json:"gender"`
