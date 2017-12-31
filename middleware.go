@@ -14,7 +14,7 @@ func TokenValidationHandler(h AuthorizedHttpHandlerFunc) http.Handler {
 
 		// Make sure the Authorization Header exists
 		if authHeader == "" {
-			writeErrorToHttp(w, http.StatusUnauthorized, "Missing Token")
+			writeErrorToHTTP(w, http.StatusUnauthorized, "Missing Token")
 			return
 		}
 
@@ -31,7 +31,7 @@ func TokenValidationHandler(h AuthorizedHttpHandlerFunc) http.Handler {
 			claims := token.Claims.(jwt.MapClaims)
 			h(claims["email"].(string), w, r)
 		} else {
-			writeErrorToHttp(w, http.StatusUnauthorized, "Invalid Token")
+			writeErrorToHTTP(w, http.StatusUnauthorized, "Invalid Token")
 		}
 	})
 }

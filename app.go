@@ -66,7 +66,7 @@ func (a *App) DoesProfileExist(p GoogleProfile) bool {
 	return false
 }
 
-func writeErrorToHttp(w http.ResponseWriter, code int, message string) {
+func writeErrorToHTTP(w http.ResponseWriter, code int, message string) {
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(code)
@@ -75,7 +75,7 @@ func writeErrorToHttp(w http.ResponseWriter, code int, message string) {
 	encoder.Encode(map[string]string{"error": message})
 }
 
-func writeJsonToHttp(w http.ResponseWriter, objects interface{}) {
+func writeJSONToHTTP(w http.ResponseWriter, code int, objects interface{}) {
 	respBody, err := json.MarshalIndent(objects, "", "  ")
 
 	if err != nil {
@@ -83,6 +83,6 @@ func writeJsonToHttp(w http.ResponseWriter, objects interface{}) {
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(code)
 	w.Write(respBody)
 }
