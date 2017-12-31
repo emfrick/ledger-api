@@ -5,9 +5,10 @@ import (
 	"strings"
 
 	jwt "github.com/dgrijalva/jwt-go"
+	mgo "gopkg.in/mgo.v2"
 )
 
-func TokenValidationHandler(h AuthorizedHttpHandlerFunc) http.Handler {
+func TokenValidationHandler(session *mgo.Session, h AuthorizedHttpHandlerFunc) http.Handler {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")
@@ -29,7 +30,8 @@ func TokenValidationHandler(h AuthorizedHttpHandlerFunc) http.Handler {
 
 		if err == nil && token.Valid {
 			claims := token.Claims.(jwt.MapClaims)
-			h(claims["email"].(string), w, r)
+			profile := getUserByEmail(session, claims["email"].(string))
+			h(profile, w, r)
 		} else {
 			writeJSONToHTTP(w, http.StatusUnauthorized, ResponseError{"Invalid Token"})
 		}

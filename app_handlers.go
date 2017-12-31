@@ -32,19 +32,15 @@ func (a *App) errorHandler(w http.ResponseWriter, r *http.Request) {
 	writeJSONToHTTP(w, http.StatusInternalServerError, ResponseError{"This is the error route"})
 }
 
-func (a *App) usersHandler(email string, w http.ResponseWriter, r *http.Request) {
+func (a *App) usersHandler(profile *User, w http.ResponseWriter, r *http.Request) {
 	var users []User
-
-	profile := getUserByEmail(a.Session, email)
 
 	getValidUsersForProfile(a.Session, *profile, &users)
 
 	writeJSONToHTTP(w, http.StatusOK, users)
 }
 
-func (a *App) getTransactions(email string, w http.ResponseWriter, r *http.Request) {
-	profile := getUserByEmail(a.Session, email)
-
+func (a *App) getTransactions(profile *User, w http.ResponseWriter, r *http.Request) {
 	var transactions []Transaction
 
 	err := getTransactionsForProfile(a.Session, *profile, &transactions)
@@ -56,9 +52,7 @@ func (a *App) getTransactions(email string, w http.ResponseWriter, r *http.Reque
 	writeJSONToHTTP(w, http.StatusOK, transactions)
 }
 
-func (a *App) postTransactions(email string, w http.ResponseWriter, r *http.Request) {
-	profile := getUserByEmail(a.Session, email)
-
+func (a *App) postTransactions(profile *User, w http.ResponseWriter, r *http.Request) {
 	var t []Transaction
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&t)

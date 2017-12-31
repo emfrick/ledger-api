@@ -38,7 +38,7 @@ type Transaction struct {
 	Tags        []string      `json:"categories" bson:"categories"`
 }
 
-type AuthorizedHttpHandlerFunc func(string, http.ResponseWriter, *http.Request)
+type AuthorizedHttpHandlerFunc func(*User, http.ResponseWriter, *http.Request)
 
 type ResponseError struct {
 	Error string `json:"error"`
