@@ -1,34 +1,35 @@
 package main
 
 import (
-	"log"
 	"net/http"
 	"strings"
 
 	jwt "github.com/dgrijalva/jwt-go"
 )
 
-func TokenValidationHandler(h http.Handler) http.Handler {
+func TokenValidationHandler(h AuthorizedHttpHandlerFunc) http.Handler {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")
 
+		// Make sure the Authorization Header exists
 		if authHeader == "" {
 			writeErrorToHttp(w, http.StatusUnauthorized, "Missing Token")
 			return
 		}
 
+		// Parse the token from Bearer xxxx
 		keys := strings.Split(authHeader, " ")
 		tokenString := keys[1]
 
-		log.Println(tokenString)
-
+		// Get the token
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 			return []byte(SecretKey), nil
 		})
 
 		if err == nil && token.Valid {
-			h.ServeHTTP(w, r)
+			claims := token.Claims.(jwt.MapClaims)
+			h(claims["email"].(string), w, r)
 		} else {
 			writeErrorToHttp(w, http.StatusUnauthorized, "Invalid Token")
 		}
