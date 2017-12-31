@@ -30,7 +30,13 @@ func TokenValidationHandler(session *mgo.Session, h AuthorizedHttpHandlerFunc) h
 
 		if err == nil && token.Valid {
 			claims := token.Claims.(jwt.MapClaims)
-			profile := getUserByEmail(session, claims["email"].(string))
+			profile, err := getUserByEmail(session, claims["email"].(string))
+
+			if err != nil {
+				writeJSONToHTTP(w, http.StatusInternalServerError, ResponseError{"Unable to get profile from token"})
+				return
+			}
+
 			h(profile, w, r)
 		} else {
 			writeJSONToHTTP(w, http.StatusUnauthorized, ResponseError{"Invalid Token"})

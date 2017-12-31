@@ -26,10 +26,10 @@ func getValidUsersForProfile(session *mgo.Session, profile User, out interface{}
 
 	c := cSession.DB(Database).C(UsersTable)
 
-	c.Find(bson.M{"sharesWith": profile.ID}).All(out)
+	c.Find(bson.M{"shared_with": profile.ID}).All(out)
 }
 
-func insertObjectIntoTable(session *mgo.Session, table string, obj interface{}) {
+func insertObjectIntoTable(session *mgo.Session, table string, obj interface{}) error {
 	cSession := session.Copy()
 	defer cSession.Close()
 
@@ -38,9 +38,7 @@ func insertObjectIntoTable(session *mgo.Session, table string, obj interface{}) 
 	c := cSession.DB(Database).C(table)
 	err := c.Insert(obj)
 
-	if err != nil {
-		log.Fatalf("Error: %v", err)
-	}
+	return err
 }
 
 func getProfileFromGoogle(accessToken string) (*GoogleProfile, error) {
@@ -60,7 +58,7 @@ func getProfileFromGoogle(accessToken string) (*GoogleProfile, error) {
 	return &profile, nil
 }
 
-func getUserByEmail(session *mgo.Session, email string) *User {
+func getUserByEmail(session *mgo.Session, email string) (*User, error) {
 	var user User
 
 	cSession := session.Copy()
@@ -70,10 +68,10 @@ func getUserByEmail(session *mgo.Session, email string) *User {
 	err := c.Find(bson.M{"email": email}).One(&user)
 
 	if err != nil {
-		log.Fatalf("Error: %v\n", err)
+		return nil, err
 	}
 
-	return &user
+	return &user, nil
 }
 
 func storeTransactions(session *mgo.Session, t []Transaction) error {

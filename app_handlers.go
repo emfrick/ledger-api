@@ -102,7 +102,12 @@ func (a *App) authHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println("Login")
 	} else {
 		// Register!
-		insertObjectIntoTable(a.Session, UsersTable, profile)
+		err = insertObjectIntoTable(a.Session, UsersTable, profile)
+
+		if err != nil {
+			writeJSONToHTTP(w, http.StatusInternalServerError, ResponseError{"Unable to add user"})
+			return
+		}
 	}
 
 	// Create the token
