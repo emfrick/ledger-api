@@ -33,9 +33,8 @@ func NewApp(dbHost string) *App {
 }
 
 func (a *App) Run(addr string) {
+	log.Printf("Started App on %s\n", addr)
 	log.Fatal(http.ListenAndServe(addr, a.Router))
-
-	log.Printf("Started App on %s", addr)
 }
 
 func (a *App) initializeRoutes() {

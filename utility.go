@@ -12,20 +12,16 @@ import (
 
 func getAllObjectsFromTable(session *mgo.Session, table string, out interface{}) {
 	cSession := session.Copy()
-
 	defer cSession.Close()
 
-	fmt.Printf("Getting Objects From Database: %v, and table: %v", Database, table)
+	log.Printf("Getting Objects From Database: %v, and table: %v\n", Database, table)
 
 	c := cSession.DB(Database).C(table)
-
 	c.Find(bson.M{}).All(out)
-	fmt.Printf("Objects: %v\n", &out)
 }
 
 func getValidUsersForProfile(session *mgo.Session, profile User, out interface{}) {
 	cSession := session.Copy()
-
 	defer cSession.Close()
 
 	c := cSession.DB(Database).C(UsersTable)
@@ -35,13 +31,11 @@ func getValidUsersForProfile(session *mgo.Session, profile User, out interface{}
 
 func insertObjectIntoTable(session *mgo.Session, table string, obj interface{}) {
 	cSession := session.Copy()
-
 	defer cSession.Close()
 
-	fmt.Printf("Inserting %v into table %s", obj, table)
+	log.Printf("Inserting %v into table %s\n", obj, table)
 
 	c := cSession.DB(Database).C(table)
-
 	err := c.Insert(obj)
 
 	if err != nil {
@@ -67,13 +61,12 @@ func getProfileFromGoogle(accessToken string) (*GoogleProfile, error) {
 }
 
 func getUserByEmail(session *mgo.Session, email string) *User {
-	cSession := session.Copy()
+	var user User
 
+	cSession := session.Copy()
 	defer cSession.Close()
 
 	c := cSession.DB(Database).C(UsersTable)
-
-	var user User
 	err := c.Find(bson.M{"email": email}).One(&user)
 
 	if err != nil {
@@ -104,7 +97,6 @@ func getTransactionsForProfile(session *mgo.Session, profile User, out interface
 	defer cSession.Close()
 
 	c := cSession.DB(Database).C(TransactionsTable)
-
 	err := c.Find(bson.M{"user_id": profile.ID}).All(out)
 
 	return err

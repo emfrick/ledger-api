@@ -9,15 +9,15 @@ import (
 
 type GoogleProfile struct {
 	ID            string `json:"id"`
-	Email         string `json:"email"`
-	VerifiedEmail bool   `json:"verified_email"`
+	Email         string `json:"email" bson:"email"`
+	VerifiedEmail bool   `json:"verified_email" bson:"verified_email"`
 	FullName      string `json:"name" bson:"full_name"`
 	FirstName     string `json:"given_name" bson:"first_name"`
 	LastName      string `json:"family_name" bson:"last_name"`
-	ProfileLink   string `json:"link"`
-	Picture       string `json:"picture"`
-	Gender        string `json:"gender"`
-	Locale        string `json:"locale"`
+	ProfileLink   string `json:"link" bson:"link"`
+	Picture       string `json:"picture" bson:"picture"`
+	Gender        string `json:"gender" bson:"gender"`
+	Locale        string `json:"locale" bson:"locale"`
 }
 
 type User struct {
