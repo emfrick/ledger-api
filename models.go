@@ -8,17 +8,23 @@ import (
 )
 
 type GoogleProfile struct {
-	ID            string          `json:"id"`
-	Email         string          `json:"email" bson:"email"`
-	VerifiedEmail bool            `json:"verified_email" bson:"verified_email"`
-	FullName      string          `json:"name" bson:"full_name"`
-	FirstName     string          `json:"given_name" bson:"first_name"`
-	LastName      string          `json:"family_name" bson:"last_name"`
-	ProfileLink   string          `json:"link" bson:"link"`
-	Picture       string          `json:"picture" bson:"picture"`
-	Gender        string          `json:"gender" bson:"gender"`
-	Locale        string          `json:"locale" bson:"locale"`
-	SharedWith    []bson.ObjectId `bson:"shared_with"`
+	ID            string `json:"id"`
+	Email         string `json:"email" bson:"email"`
+	VerifiedEmail bool   `json:"verified_email" bson:"verified_email"`
+	FullName      string `json:"name" bson:"full_name"`
+	FirstName     string `json:"given_name" bson:"first_name"`
+	LastName      string `json:"family_name" bson:"last_name"`
+	ProfileLink   string `json:"link" bson:"link"`
+	Picture       string `json:"picture" bson:"picture"`
+	Gender        string `json:"gender" bson:"gender"`
+	Locale        string `json:"locale" bson:"locale"`
+}
+
+type GoogleOauthError struct {
+	Err struct {
+		Code    int    `json:"code"`
+		Message string `json:"message"`
+	} `json:"error"`
 }
 
 type User struct {
@@ -36,7 +42,7 @@ type Transaction struct {
 	Description string        `json:"description" bson:"description"`
 	Date        time.Time     `json:"date" bson:"date"`
 	Amount      int64         `json:"amount" bson:"amount"`
-	User        bson.ObjectId `json:"user_id" bson:"user_id"`
+	SubmittedBy bson.ObjectId `json:"submitted_by" bson:"submitted_by"`
 	Tags        []string      `json:"categories" bson:"categories"`
 }
 

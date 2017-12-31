@@ -50,10 +50,18 @@ func getProfileFromGoogle(accessToken string) (*GoogleProfile, error) {
 		return nil, err
 	}
 
-	var profile GoogleProfile
-
 	decoder := json.NewDecoder(response.Body)
-	decoder.Decode(&profile)
+
+	if response.StatusCode == http.StatusUnauthorized {
+		var googleOauthError GoogleOauthError
+		err = decoder.Decode(&googleOauthError)
+		return nil, googleOauthError
+	}
+
+	var profile GoogleProfile
+	err = decoder.Decode(&profile)
+
+	log.Println(err)
 
 	return &profile, nil
 }
@@ -106,4 +114,8 @@ func writeJSONToHTTP(w http.ResponseWriter, code int, objects interface{}) {
 
 	encoder := json.NewEncoder(w)
 	encoder.Encode(objects)
+}
+
+func (e GoogleOauthError) Error() string {
+	return e.Err.Message
 }

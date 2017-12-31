@@ -64,7 +64,7 @@ func (a *App) postTransactions(profile *User, w http.ResponseWriter, r *http.Req
 	}
 
 	for index := range t {
-		t[index].User = bson.ObjectId(profile.ID)
+		t[index].SubmittedBy = bson.ObjectId(profile.ID)
 	}
 
 	if err = storeTransactions(a.Session, t); err != nil {
@@ -92,7 +92,7 @@ func (a *App) authHandler(w http.ResponseWriter, r *http.Request) {
 	profile, err := getProfileFromGoogle(data["access_token"])
 
 	if err != nil {
-		writeJSONToHTTP(w, http.StatusInternalServerError, ResponseError{"Error Getting Google Profile"})
+		writeJSONToHTTP(w, http.StatusInternalServerError, ResponseError{err.Error()})
 		return
 	}
 
@@ -127,5 +127,5 @@ func (a *App) authHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writeJSONToHTTP(w, http.StatusOK, tokenString)
+	writeJSONToHTTP(w, http.StatusOK, map[string]string{"token": tokenString})
 }
