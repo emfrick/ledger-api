@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"time"
 
+	"gopkg.in/mgo.v2/bson"
+
 	jwt "github.com/dgrijalva/jwt-go"
 )
 
@@ -38,6 +40,30 @@ func (a *App) usersHandler(email string, w http.ResponseWriter, r *http.Request)
 	getValidUsersForProfile(a.Session, *profile, &users)
 
 	writeJsonToHttp(w, users)
+}
+
+func (a *App) postTransactions(email string, w http.ResponseWriter, r *http.Request) {
+	profile := getUserByEmail(a.Session, email)
+
+	var t []Transaction
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&t)
+
+	if err != nil {
+		log.Println(err)
+		writeErrorToHttp(w, http.StatusInternalServerError, "Unable to decode JSON")
+		return
+	}
+
+	for index := range t {
+		t[index].User = bson.ObjectId(profile.ID)
+	}
+
+	if err = storeTransactions(a.Session, t); err != nil {
+		writeErrorToHttp(w, http.StatusInternalServerError, "Unable to save transactions")
+	}
+
+	writeJsonToHttp(w, t)
 }
 
 func (a *App) authHandler(w http.ResponseWriter, r *http.Request) {

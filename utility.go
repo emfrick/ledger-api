@@ -82,3 +82,19 @@ func getUserByEmail(session *mgo.Session, email string) *User {
 
 	return &user
 }
+
+func storeTransactions(session *mgo.Session, t []Transaction) error {
+	cSession := session.Copy()
+	defer cSession.Close()
+
+	c := cSession.DB(Database).C(TransactionsTable)
+
+	for _, transaction := range t {
+		if err := c.Insert(transaction); err != nil {
+			log.Printf("Error: %v\n", err)
+			return err
+		}
+	}
+
+	return nil
+}
