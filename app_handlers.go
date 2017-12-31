@@ -42,6 +42,20 @@ func (a *App) usersHandler(email string, w http.ResponseWriter, r *http.Request)
 	writeJsonToHttp(w, users)
 }
 
+func (a *App) getTransactions(email string, w http.ResponseWriter, r *http.Request) {
+	profile := getUserByEmail(a.Session, email)
+
+	var transactions []Transaction
+
+	err := getTransactionsForProfile(a.Session, *profile, &transactions)
+
+	if err != nil {
+		writeErrorToHttp(w, http.StatusInternalServerError, "Error getting transactions")
+	}
+
+	writeJsonToHttp(w, transactions)
+}
+
 func (a *App) postTransactions(email string, w http.ResponseWriter, r *http.Request) {
 	profile := getUserByEmail(a.Session, email)
 

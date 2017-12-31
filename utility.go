@@ -98,3 +98,14 @@ func storeTransactions(session *mgo.Session, t []Transaction) error {
 
 	return nil
 }
+
+func getTransactionsForProfile(session *mgo.Session, profile User, out interface{}) error {
+	cSession := session.Copy()
+	defer cSession.Close()
+
+	c := cSession.DB(Database).C(TransactionsTable)
+
+	err := c.Find(bson.M{"user_id": profile.ID}).All(out)
+
+	return err
+}
