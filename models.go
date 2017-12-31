@@ -39,3 +39,7 @@ type Transaction struct {
 }
 
 type AuthorizedHttpHandlerFunc func(string, http.ResponseWriter, *http.Request)
+
+type ResponseError struct {
+	Error string `json:"error"`
+}

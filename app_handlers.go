@@ -18,7 +18,7 @@ func (a *App) indexHandler(w http.ResponseWriter, r *http.Request) {
 	dbNames, err := session.DatabaseNames()
 
 	if err != nil {
-		writeErrorToHTTP(w, http.StatusInternalServerError, "Unable to Get Database Names")
+		writeJSONToHTTP(w, http.StatusInternalServerError, ResponseError{"Unable to Get Database Names"})
 		return
 	}
 
@@ -29,7 +29,7 @@ func (a *App) errorHandler(w http.ResponseWriter, r *http.Request) {
 	session := a.Session.Copy()
 	defer session.Close()
 
-	writeErrorToHTTP(w, http.StatusInternalServerError, "This is the error route")
+	writeJSONToHTTP(w, http.StatusInternalServerError, ResponseError{"This is the error route"})
 }
 
 func (a *App) usersHandler(email string, w http.ResponseWriter, r *http.Request) {
@@ -50,7 +50,7 @@ func (a *App) getTransactions(email string, w http.ResponseWriter, r *http.Reque
 	err := getTransactionsForProfile(a.Session, *profile, &transactions)
 
 	if err != nil {
-		writeErrorToHTTP(w, http.StatusInternalServerError, "Error getting transactions")
+		writeJSONToHTTP(w, http.StatusInternalServerError, ResponseError{"Error getting transactions"})
 	}
 
 	writeJSONToHTTP(w, http.StatusOK, transactions)
@@ -65,7 +65,7 @@ func (a *App) postTransactions(email string, w http.ResponseWriter, r *http.Requ
 
 	if err != nil {
 		log.Println(err)
-		writeErrorToHTTP(w, http.StatusInternalServerError, "Unable to decode JSON")
+		writeJSONToHTTP(w, http.StatusInternalServerError, ResponseError{"Unable to decode JSON"})
 		return
 	}
 
@@ -74,7 +74,7 @@ func (a *App) postTransactions(email string, w http.ResponseWriter, r *http.Requ
 	}
 
 	if err = storeTransactions(a.Session, t); err != nil {
-		writeErrorToHTTP(w, http.StatusInternalServerError, "Unable to save transactions")
+		writeJSONToHTTP(w, http.StatusInternalServerError, ResponseError{"Unable to save transactions"})
 	}
 
 	writeJSONToHTTP(w, http.StatusCreated, t)
@@ -90,7 +90,7 @@ func (a *App) authHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Make sure there is an access token (this would come from the OAuth provider)
 	if data["access_token"] == "" {
-		writeErrorToHTTP(w, http.StatusBadRequest, "Google Access Token Required")
+		writeJSONToHTTP(w, http.StatusBadRequest, ResponseError{"Google Access Token Required"})
 		return
 	}
 
@@ -98,7 +98,7 @@ func (a *App) authHandler(w http.ResponseWriter, r *http.Request) {
 	profile, err := getProfileFromGoogle(data["access_token"])
 
 	if err != nil {
-		writeErrorToHTTP(w, http.StatusInternalServerError, "Error Getting Google Profile")
+		writeJSONToHTTP(w, http.StatusInternalServerError, ResponseError{"Error Getting Google Profile"})
 		return
 	}
 
@@ -123,7 +123,7 @@ func (a *App) authHandler(w http.ResponseWriter, r *http.Request) {
 	tokenString, err := token.SignedString([]byte(SecretKey))
 
 	if err != nil {
-		writeErrorToHTTP(w, http.StatusInternalServerError, "Error getting token")
+		writeJSONToHTTP(w, http.StatusInternalServerError, ResponseError{"Error getting token"})
 		log.Println(err)
 		return
 	}

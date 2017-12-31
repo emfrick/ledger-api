@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 
@@ -64,25 +63,4 @@ func (a *App) DoesProfileExist(p GoogleProfile) bool {
 	}
 
 	return false
-}
-
-func writeErrorToHTTP(w http.ResponseWriter, code int, message string) {
-
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(code)
-
-	encoder := json.NewEncoder(w)
-	encoder.Encode(map[string]string{"error": message})
-}
-
-func writeJSONToHTTP(w http.ResponseWriter, code int, objects interface{}) {
-	respBody, err := json.MarshalIndent(objects, "", "  ")
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(code)
-	w.Write(respBody)
 }

@@ -109,3 +109,11 @@ func getTransactionsForProfile(session *mgo.Session, profile User, out interface
 
 	return err
 }
+
+func writeJSONToHTTP(w http.ResponseWriter, code int, objects interface{}) {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(code)
+
+	encoder := json.NewEncoder(w)
+	encoder.Encode(objects)
+}
