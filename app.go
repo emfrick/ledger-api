@@ -10,11 +10,13 @@ import (
 	mgo "gopkg.in/mgo.v2"
 )
 
+// App holds the mux router and mongo session
 type App struct {
 	Router  *mux.Router
 	Session *mgo.Session
 }
 
+// NewApp returns a new instance of the App connected to the given database hose
 func NewApp(dbHost string) *App {
 	var app = App{}
 
@@ -32,11 +34,13 @@ func NewApp(dbHost string) *App {
 	return &app
 }
 
+// Run starts up the app listening on the given address
 func (a *App) Run(addr string) {
 	log.Printf("Started App on %s\n", addr)
 	log.Fatal(http.ListenAndServe(addr, a.Router))
 }
 
+// Define the handlers for the routes
 func (a *App) initializeRoutes() {
 	a.Router.HandleFunc("/", a.indexHandler)
 	a.Router.Handle("/users", TokenValidationHandler(a.Session, a.usersHandler))
@@ -46,11 +50,13 @@ func (a *App) initializeRoutes() {
 	a.Router.HandleFunc("/error", a.errorHandler)
 }
 
+// DoesProfileExist checks the database for the given email
 func (a *App) DoesProfileExist(p GoogleProfile) bool {
 
 	session := a.Session.Copy()
-	col := session.DB(Database).C(UsersTable)
+	defer session.Close()
 
+	col := session.DB(Database).C(UsersTable)
 	count, err := col.Find(bson.M{"email": p.Email}).Count()
 
 	if err != nil {

@@ -11,6 +11,7 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 )
 
+// Handler for the / route
 func (a *App) indexHandler(w http.ResponseWriter, r *http.Request) {
 	session := a.Session.Copy()
 	defer session.Close()
@@ -25,6 +26,7 @@ func (a *App) indexHandler(w http.ResponseWriter, r *http.Request) {
 	writeJSONToHTTP(w, http.StatusOK, dbNames)
 }
 
+// Handler for the /error route
 func (a *App) errorHandler(w http.ResponseWriter, r *http.Request) {
 	session := a.Session.Copy()
 	defer session.Close()
@@ -32,6 +34,7 @@ func (a *App) errorHandler(w http.ResponseWriter, r *http.Request) {
 	writeJSONToHTTP(w, http.StatusInternalServerError, ResponseError{"This is the error route"})
 }
 
+// Handler for the /GET users route
 func (a *App) usersHandler(profile *User, w http.ResponseWriter, r *http.Request) {
 	var users []User
 
@@ -40,6 +43,7 @@ func (a *App) usersHandler(profile *User, w http.ResponseWriter, r *http.Request
 	writeJSONToHTTP(w, http.StatusOK, users)
 }
 
+// Handler for the GET /transactions route
 func (a *App) getTransactions(profile *User, w http.ResponseWriter, r *http.Request) {
 	var transactions []Transaction
 
@@ -52,6 +56,8 @@ func (a *App) getTransactions(profile *User, w http.ResponseWriter, r *http.Requ
 	writeJSONToHTTP(w, http.StatusOK, transactions)
 }
 
+// Handler for the POST /transactions route
+// Takes a JSON array of transaction objects
 func (a *App) postTransactions(profile *User, w http.ResponseWriter, r *http.Request) {
 	var t []Transaction
 	decoder := json.NewDecoder(r.Body)
@@ -74,6 +80,7 @@ func (a *App) postTransactions(profile *User, w http.ResponseWriter, r *http.Req
 	writeJSONToHTTP(w, http.StatusCreated, t)
 }
 
+// Handles authentication against Google and creates a JWT
 func (a *App) authHandler(w http.ResponseWriter, r *http.Request) {
 
 	var data map[string]string

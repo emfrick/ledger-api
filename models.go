@@ -7,6 +7,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+// GoogleProfile is a struct that contains the attributes returned from Google
 type GoogleProfile struct {
 	ID            string `json:"id"`
 	Email         string `json:"email" bson:"email"`
@@ -20,6 +21,7 @@ type GoogleProfile struct {
 	Locale        string `json:"locale" bson:"locale"`
 }
 
+// GoogleOauthError is a custom Error object
 type GoogleOauthError struct {
 	Err struct {
 		Code    int    `json:"code"`
@@ -27,6 +29,7 @@ type GoogleOauthError struct {
 	} `json:"error"`
 }
 
+// User is a representation of a stored user
 type User struct {
 	ID         bson.ObjectId   `json:"id,omitempty" bson:"_id,omitempty"`
 	FirstName  string          `json:"first_name" bson:"first_name"`
@@ -36,6 +39,7 @@ type User struct {
 	SharedWith []bson.ObjectId `json:"-" bson:"shared_with"`
 }
 
+// Transaction represents a transaction
 type Transaction struct {
 	ID          bson.ObjectId `json:"id,omitempty" bson:"_id,omitempty"`
 	Title       string        `json:"title" bson:"title"`
@@ -46,8 +50,10 @@ type Transaction struct {
 	Tags        []string      `json:"categories" bson:"categories"`
 }
 
-type AuthorizedHttpHandlerFunc func(*User, http.ResponseWriter, *http.Request)
+// AuthorizedHTTPHandlerFunc is passed in middleware
+type AuthorizedHTTPHandlerFunc func(*User, http.ResponseWriter, *http.Request)
 
+// ResponseError is meant to be returned by
 type ResponseError struct {
 	Error string `json:"error"`
 }
