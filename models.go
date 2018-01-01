@@ -37,7 +37,7 @@ type User struct {
 }
 
 type Transaction struct {
-	ID          bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
+	ID          bson.ObjectId `json:"id,omitempty" bson:"_id,omitempty"`
 	Title       string        `json:"title" bson:"title"`
 	Description string        `json:"description" bson:"description"`
 	Date        time.Time     `json:"date" bson:"date"`

@@ -104,8 +104,25 @@ func getTransactionsForProfile(session *mgo.Session, profile User, out interface
 	cSession := session.Copy()
 	defer cSession.Close()
 
-	c := cSession.DB(Database).C(TransactionsTable)
-	err := c.Find(bson.M{"user_id": profile.ID}).All(out)
+	transactionsCol := cSession.DB(Database).C(TransactionsTable)
+	usersCol := cSession.DB(Database).C(UsersTable)
+
+	// Grab all the IDs from the "SharedWith" property
+	// There has to be a better way to do this
+	var sharedUsers []User
+	queryFindSharedIds := bson.M{"shared_with": profile.ID}
+
+	err := usersCol.Find(queryFindSharedIds).All(&sharedUsers)
+
+	// Loop and create a list of IDs
+	// There has to be a better way to do this
+	var sharedIds []bson.ObjectId
+	for _, u := range sharedUsers {
+		sharedIds = append(sharedIds, u.ID)
+	}
+
+	query := bson.M{"$or": []bson.M{bson.M{"submitted_by": bson.M{"$in": []bson.ObjectId(sharedIds)}}, bson.M{"submitted_by": profile.ID}}}
+	err = transactionsCol.Find(query).All(out)
 
 	return err
 }
