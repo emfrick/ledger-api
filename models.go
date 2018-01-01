@@ -33,7 +33,7 @@ type User struct {
 	LastName   string          `json:"last_name" bson:"last_name"`
 	Email      string          `json:"email" bson:"email"`
 	Gender     string          `json:"gender" bson:"gender"`
-	SharedWith []bson.ObjectId `bson:"shared_with"`
+	SharedWith []bson.ObjectId `json:"-" bson:"shared_with"`
 }
 
 type Transaction struct {

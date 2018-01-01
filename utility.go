@@ -26,7 +26,9 @@ func getValidUsersForProfile(session *mgo.Session, profile User, out interface{}
 
 	c := cSession.DB(Database).C(UsersTable)
 
-	c.Find(bson.M{"shared_with": profile.ID}).All(out)
+	query := bson.M{"$or": []bson.M{bson.M{"shared_with": profile.ID}, bson.M{"_id": profile.ID}}}
+
+	c.Find(query).All(out)
 }
 
 func insertObjectIntoTable(session *mgo.Session, table string, obj interface{}) error {
