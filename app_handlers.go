@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -32,6 +33,41 @@ func (a *App) errorHandler(w http.ResponseWriter, r *http.Request) {
 	defer session.Close()
 
 	writeJSONToHTTP(w, http.StatusInternalServerError, ResponseError{"This is the error route"})
+}
+
+func (a *App) postSharedHandler(profile *User, w http.ResponseWriter, r *http.Request) {
+	var decodedJSON map[string]string
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&decodedJSON)
+	sharedEmail := decodedJSON["share_with"]
+
+	if err != nil || sharedEmail == "" {
+		log.Println(err)
+		writeJSONToHTTP(w, http.StatusBadRequest, ResponseError{"Unable to get shared email (share_with)"})
+		return
+	}
+
+	var sharedProfile *User
+	sharedProfile, err = getUserByEmail(a.Session, decodedJSON["share_with"])
+
+	if err != nil {
+		log.Println(err)
+		formattedResponse := fmt.Sprintf("Unable to find user '%s'", sharedEmail)
+		writeJSONToHTTP(w, http.StatusBadRequest, ResponseError{formattedResponse})
+		return
+	}
+
+	err = addSharedUserToProfile(a.Session, *sharedProfile, *profile)
+
+	if err != nil {
+		log.Println(err)
+		formattedResponse := fmt.Sprintf("Unable to share with user user '%s'", sharedEmail)
+		writeJSONToHTTP(w, http.StatusInternalServerError, ResponseError{formattedResponse})
+		return
+	}
+
+	successMsg := fmt.Sprintf("Successfully shared with user '%s'", sharedEmail)
+	writeJSONToHTTP(w, http.StatusCreated, map[string]string{"message": successMsg})
 }
 
 // Handler for the GET shared route

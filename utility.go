@@ -169,3 +169,15 @@ func writeJSONToHTTP(w http.ResponseWriter, code int, objects interface{}) {
 func (e GoogleOauthError) Error() string {
 	return e.Err.Message
 }
+
+func addSharedUserToProfile(session *mgo.Session, sharedUser User, profile User) error {
+	cSession := session.Copy()
+	defer cSession.Close()
+
+	usersCol := cSession.DB(Database).C(UsersTable)
+
+	who := bson.M{"_id": profile.ID}
+	what := bson.M{"$push": bson.M{"shared_with": sharedUser.ID}}
+
+	return usersCol.Update(who, what)
+}
