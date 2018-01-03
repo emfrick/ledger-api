@@ -25,7 +25,7 @@ func getAllObjectsFromTable(session *mgo.Session, table string, out interface{})
 
 // Grabs the valid users given a profile (returns the given profile along with
 // any accounts that are shred with that profile)
-func getValidUsersForProfile(session *mgo.Session, profile User, out interface{}) {
+func getSharedUsersForProfile(session *mgo.Session, profile User, out interface{}) {
 
 	// Copy the mongo session and defer its close
 	cSession := session.Copy()

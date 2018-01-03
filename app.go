@@ -43,8 +43,8 @@ func (a *App) Run(addr string) {
 // Define the handlers for the routes
 func (a *App) initializeRoutes() {
 	a.Router.HandleFunc("/", a.indexHandler)
-	a.Router.Handle("/users", TokenValidationHandler(a.Session, a.usersHandler))
 	a.Router.HandleFunc("/auth", a.authHandler).Methods("POST")
+	a.Router.Handle("/shared", TokenValidationHandler(a.Session, a.getSharedHandler)).Methods("GET")
 	a.Router.Handle("/transactions", TokenValidationHandler(a.Session, a.postTransactions)).Methods("POST")
 	a.Router.Handle("/transactions", TokenValidationHandler(a.Session, a.getTransactions)).Methods("GET")
 	a.Router.HandleFunc("/error", a.errorHandler)

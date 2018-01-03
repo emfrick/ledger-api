@@ -34,11 +34,12 @@ func (a *App) errorHandler(w http.ResponseWriter, r *http.Request) {
 	writeJSONToHTTP(w, http.StatusInternalServerError, ResponseError{"This is the error route"})
 }
 
-// Handler for the /GET users route
-func (a *App) usersHandler(profile *User, w http.ResponseWriter, r *http.Request) {
+// Handler for the GET shared route
+// Returns a list of users that are shared with the current user
+func (a *App) getSharedHandler(profile *User, w http.ResponseWriter, r *http.Request) {
 	var users []User
 
-	getValidUsersForProfile(a.Session, *profile, &users)
+	getSharedUsersForProfile(a.Session, *profile, &users)
 
 	writeJSONToHTTP(w, http.StatusOK, users)
 }
