@@ -46,6 +46,7 @@ func (a *App) initializeRoutes() {
 	a.Router.HandleFunc("/auth", a.authHandler).Methods("POST")
 	a.Router.Handle("/shared", TokenValidationHandler(a.Session, a.postSharedHandler)).Methods("POST")
 	a.Router.Handle("/shared", TokenValidationHandler(a.Session, a.getSharedHandler)).Methods("GET")
+	a.Router.Handle("/shared/{id}", TokenValidationHandler(a.Session, a.deleteSharedHandler)).Methods("DELETE")
 	a.Router.Handle("/transactions", TokenValidationHandler(a.Session, a.postTransactions)).Methods("POST")
 	a.Router.Handle("/transactions", TokenValidationHandler(a.Session, a.getTransactions)).Methods("GET")
 	a.Router.HandleFunc("/error", a.errorHandler)

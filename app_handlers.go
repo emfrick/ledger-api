@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gorilla/mux"
+
 	"gopkg.in/mgo.v2/bson"
 
 	jwt "github.com/dgrijalva/jwt-go"
@@ -78,6 +80,42 @@ func (a *App) getSharedHandler(profile *User, w http.ResponseWriter, r *http.Req
 	getSharedUsersForProfile(a.Session, *profile, &users)
 
 	writeJSONToHTTP(w, http.StatusOK, users)
+}
+
+func (a *App) deleteSharedHandler(profile *User, w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	id := params["id"]
+
+	if id == "" {
+		log.Println("Missing ID for DELETE /shared")
+		writeJSONToHTTP(w, http.StatusBadRequest, ResponseError{"Missing ID"})
+		return
+	}
+
+	if bson.ObjectIdHex(id) == profile.ID {
+		log.Println("Attempt to remove self from /shared")
+		writeJSONToHTTP(w, http.StatusBadRequest, ResponseError{"You cannot unshare with yourself"})
+		return
+	}
+
+	sharedUser, err := getUserByID(a.Session, id)
+
+	if err != nil {
+		log.Println(err)
+		writeJSONToHTTP(w, http.StatusBadRequest, ResponseError{"Unable to find user"})
+		return
+	}
+
+	err = removeSharedUserFromProfile(a.Session, *sharedUser, *profile)
+
+	if err != nil {
+		log.Println(err)
+		writeJSONToHTTP(w, http.StatusInternalServerError, ResponseError{"Unable to remove user from shares"})
+		return
+	}
+
+	successMsg := fmt.Sprintf("Successfully removed user '%s' from your shared users", sharedUser.Email)
+	writeJSONToHTTP(w, http.StatusOK, map[string]string{"message": successMsg})
 }
 
 // Handler for the GET /transactions route

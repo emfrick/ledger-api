@@ -106,6 +106,22 @@ func getUserByEmail(session *mgo.Session, email string) (*User, error) {
 	return &user, nil
 }
 
+func getUserByID(session *mgo.Session, id string) (*User, error) {
+	var user User
+
+	cSession := session.Copy()
+	defer cSession.Close()
+
+	c := cSession.DB(Database).C(UsersTable)
+	err := c.Find(bson.M{"_id": bson.ObjectIdHex(id)}).One(&user)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
+
 // Stores the given transactions in the Mongo Database
 func storeTransactions(session *mgo.Session, t []Transaction) error {
 
@@ -178,6 +194,18 @@ func addSharedUserToProfile(session *mgo.Session, sharedUser User, profile User)
 
 	who := bson.M{"_id": profile.ID}
 	what := bson.M{"$push": bson.M{"shared_with": sharedUser.ID}}
+
+	return usersCol.Update(who, what)
+}
+
+func removeSharedUserFromProfile(session *mgo.Session, sharedUser User, profile User) error {
+	cSession := session.Copy()
+	defer cSession.Close()
+
+	usersCol := cSession.DB(Database).C(UsersTable)
+
+	who := bson.M{"_id": profile.ID}
+	what := bson.M{"$pull": bson.M{"shared_with": sharedUser.ID}}
 
 	return usersCol.Update(who, what)
 }
