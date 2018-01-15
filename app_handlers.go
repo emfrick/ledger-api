@@ -16,24 +16,15 @@ import (
 
 // Handler for the / route
 func (a *App) indexHandler(w http.ResponseWriter, r *http.Request) {
-	session := a.Session.Copy()
-	defer session.Close()
 
-	dbNames, err := session.DatabaseNames()
+	response := map[string]string{}
+	response["message"] = "This is the index route"
 
-	if err != nil {
-		writeJSONToHTTP(w, http.StatusInternalServerError, ResponseError{"Unable to Get Database Names"})
-		return
-	}
-
-	writeJSONToHTTP(w, http.StatusOK, dbNames)
+	writeJSONToHTTP(w, http.StatusOK, response)
 }
 
 // Handler for the /error route
 func (a *App) errorHandler(w http.ResponseWriter, r *http.Request) {
-	session := a.Session.Copy()
-	defer session.Close()
-
 	writeJSONToHTTP(w, http.StatusInternalServerError, ResponseError{"This is the error route"})
 }
 
@@ -50,7 +41,7 @@ func (a *App) postSharedHandler(profile *User, w http.ResponseWriter, r *http.Re
 	}
 
 	var sharedProfile *User
-	sharedProfile, err = getUserByEmail(a.Session, decodedJSON["share_with"])
+	sharedProfile, err = a.Database.UAL.GetUserByEmail(decodedJSON["share_with"])
 
 	if err != nil {
 		log.Println(err)
@@ -59,7 +50,7 @@ func (a *App) postSharedHandler(profile *User, w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	err = addSharedUserToProfile(a.Session, *sharedProfile, *profile)
+	err = a.Database.UAL.AddSharedUserToProfile(*sharedProfile, *profile)
 
 	if err != nil {
 		log.Println(err)
@@ -77,7 +68,7 @@ func (a *App) postSharedHandler(profile *User, w http.ResponseWriter, r *http.Re
 func (a *App) getSharedHandler(profile *User, w http.ResponseWriter, r *http.Request) {
 	var users []User
 
-	getSharedUsersForProfile(a.Session, *profile, &users)
+	a.Database.UAL.GetSharedUsersForProfile(*profile, &users)
 
 	writeJSONToHTTP(w, http.StatusOK, users)
 }
@@ -98,7 +89,7 @@ func (a *App) deleteSharedHandler(profile *User, w http.ResponseWriter, r *http.
 		return
 	}
 
-	sharedUser, err := getUserByID(a.Session, id)
+	sharedUser, err := a.Database.UAL.GetUserById(id)
 
 	if err != nil {
 		log.Println(err)
@@ -106,7 +97,7 @@ func (a *App) deleteSharedHandler(profile *User, w http.ResponseWriter, r *http.
 		return
 	}
 
-	err = removeSharedUserFromProfile(a.Session, *sharedUser, *profile)
+	err = a.Database.UAL.RemoveSharedUserFromProfile(*sharedUser, *profile)
 
 	if err != nil {
 		log.Println(err)
@@ -122,7 +113,7 @@ func (a *App) deleteSharedHandler(profile *User, w http.ResponseWriter, r *http.
 func (a *App) getTransactions(profile *User, w http.ResponseWriter, r *http.Request) {
 	var transactions []Transaction
 
-	err := getTransactionsForProfile(a.Session, *profile, &transactions)
+	err := a.Database.TAL.GetTransactionsForProfile(*profile, &transactions)
 
 	if err != nil {
 		writeJSONToHTTP(w, http.StatusInternalServerError, ResponseError{"Error getting transactions"})
@@ -148,7 +139,7 @@ func (a *App) postTransactions(profile *User, w http.ResponseWriter, r *http.Req
 		t[index].SubmittedBy = bson.ObjectId(profile.ID)
 	}
 
-	if err = storeTransactions(a.Session, t); err != nil {
+	if err = a.Database.TAL.StoreTransactions(t); err != nil {
 		writeJSONToHTTP(w, http.StatusInternalServerError, ResponseError{"Unable to save transactions"})
 	}
 
@@ -179,12 +170,12 @@ func (a *App) authHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check if the user exists (by email)
-	if a.DoesProfileExist(*profile) {
+	if a.Database.UAL.DoesProfileExist(profile.Email) {
 		// Login
 		log.Println("Login")
 	} else {
 		// Register!
-		err = insertObjectIntoTable(a.Session, UsersTable, profile)
+		err = a.Database.UAL.AddUser(*profile)
 
 		if err != nil {
 			writeJSONToHTTP(w, http.StatusInternalServerError, ResponseError{"Unable to add user"})

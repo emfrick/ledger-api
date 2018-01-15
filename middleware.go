@@ -5,11 +5,10 @@ import (
 	"strings"
 
 	jwt "github.com/dgrijalva/jwt-go"
-	mgo "gopkg.in/mgo.v2"
 )
 
 // TokenValidationHandler is used to protect routes and ensure tokens are valid
-func TokenValidationHandler(session *mgo.Session, h AuthorizedHTTPHandlerFunc) http.Handler {
+func TokenValidationHandler(db *Database, h AuthorizedHTTPHandlerFunc) http.Handler {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")
@@ -32,7 +31,7 @@ func TokenValidationHandler(session *mgo.Session, h AuthorizedHTTPHandlerFunc) h
 		// Make sure the token is valid
 		if err == nil && token.Valid {
 			claims := token.Claims.(jwt.MapClaims)
-			profile, err := getUserByEmail(session, claims["email"].(string))
+			profile, err := db.UAL.GetUserByEmail(claims["email"].(string))
 
 			if err != nil {
 				writeJSONToHTTP(w, http.StatusInternalServerError, ResponseError{"Unable to get profile from token"})
