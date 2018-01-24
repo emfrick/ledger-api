@@ -1,14 +1,30 @@
 package main_test
 
 import (
-	"fmt"
+	"net/http"
+	"net/http/httptest"
+	"os"
 	"testing"
 
 	"."
 )
 
-func TestGetUserByEmail(t *testing.T) {
+var app *main.App
 
+type route struct {
+	method string
+	path   string
+}
+
+var protectedRoutes = []route{
+	{"GET", "/shared"},
+	{"POST", "/shared"},
+	{"DELETE", "/shared/1"},
+	{"GET", "/transactions"},
+	{"POST", "/transactions"},
+}
+
+func TestMain(m *testing.M) {
 	// Create a Mock Access Layer
 	mal := &main.MockAccessLayer{
 		Users:        []main.GoogleProfile{},
@@ -22,43 +38,26 @@ func TestGetUserByEmail(t *testing.T) {
 	}
 
 	// Instantiate the App
-	app := main.NewApp(&db)
+	app = main.NewApp(&db)
 
-	// Create a fake user
-	emfrick := main.GoogleProfile{
-		ID:            "000000000000000000000000",
-		Email:         "emfrick@gmail.com",
-		VerifiedEmail: true,
-		FullName:      "Eric Frick",
-		FirstName:     "Eric",
-		LastName:      "Frick",
-		ProfileLink:   "http://www.example.com",
-		Picture:       "http://www.example",
-		Gender:        "male",
-		Locale:        "en",
+	result := m.Run()
+
+	os.Exit(result)
+}
+
+func TestProtectedRoutes(t *testing.T) {
+
+	// Define the expectred response code
+	expected := http.StatusUnauthorized
+
+	// Check that all protected routes return the expected response code
+	for _, route := range protectedRoutes {
+		req, _ := http.NewRequest(route.method, route.path, nil)
+		rr := httptest.NewRecorder()
+		app.Router.ServeHTTP(rr, req)
+
+		if expected != rr.Code {
+			t.Errorf("Expected route %s to return response code %d. Got %d\n", route.path, expected, rr.Code)
+		}
 	}
-
-	joeuser := main.GoogleProfile{
-		ID:            "111111111111111111111111",
-		Email:         "joeuser@gmail.com",
-		VerifiedEmail: true,
-		FullName:      "Joe User",
-		FirstName:     "Joe",
-		LastName:      "User",
-		ProfileLink:   "http://www.example.com",
-		Picture:       "http://www.example",
-		Gender:        "male",
-		Locale:        "en",
-	}
-
-	err := app.Database.UAL.AddUser(emfrick)
-	err = app.Database.UAL.AddUser(joeuser)
-
-	profile, err := app.Database.UAL.GetUserByEmail(joeuser.Email)
-
-	if err != nil {
-		t.Errorf("Error: %v", err)
-	}
-
-	fmt.Printf("USER: %v\n", profile)
 }
