@@ -7,10 +7,12 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+// MongoAccessLayer provides access to a Mongo DB
 type MongoAccessLayer struct {
 	Session *mgo.Session
 }
 
+// AddUser adds a user to the database
 func (mal MongoAccessLayer) AddUser(user GoogleProfile) error {
 	// Copy the mongo session and defer its close
 	cSession := mal.Session.Copy()
@@ -63,7 +65,8 @@ func (mal MongoAccessLayer) GetUserByEmail(email string) (*User, error) {
 	return &user, nil
 }
 
-func (mal MongoAccessLayer) GetUserById(id string) (*User, error) {
+// GetUserByID returns a user given the ID
+func (mal MongoAccessLayer) GetUserByID(id string) (*User, error) {
 	var user User
 
 	// Copy the mongo session and defer its close
@@ -80,6 +83,7 @@ func (mal MongoAccessLayer) GetUserById(id string) (*User, error) {
 	return &user, nil
 }
 
+// GetSharedUsersForProfile returns the users for the given profile
 func (mal MongoAccessLayer) GetSharedUsersForProfile(profile User, out interface{}) {
 	// Copy the mongo session and defer its close
 	cSession := mal.Session.Copy()
@@ -93,6 +97,7 @@ func (mal MongoAccessLayer) GetSharedUsersForProfile(profile User, out interface
 	c.Find(query).All(out)
 }
 
+// AddSharedUserToProfile adds a user to the given profile
 func (mal MongoAccessLayer) AddSharedUserToProfile(sharedUser User, profile User) error {
 	cSession := mal.Session.Copy()
 	defer cSession.Close()
@@ -105,6 +110,7 @@ func (mal MongoAccessLayer) AddSharedUserToProfile(sharedUser User, profile User
 	return usersCol.Update(who, what)
 }
 
+// RemoveSharedUserFromProfile removes a share
 func (mal MongoAccessLayer) RemoveSharedUserFromProfile(sharedUser User, profile User) error {
 	cSession := mal.Session.Copy()
 	defer cSession.Close()
@@ -117,6 +123,7 @@ func (mal MongoAccessLayer) RemoveSharedUserFromProfile(sharedUser User, profile
 	return usersCol.Update(who, what)
 }
 
+// StoreTransactions stores the given transactions
 func (mal MongoAccessLayer) StoreTransactions(t []Transaction) error {
 
 	// Copy the mongo session and defer its close
@@ -135,6 +142,7 @@ func (mal MongoAccessLayer) StoreTransactions(t []Transaction) error {
 	return nil
 }
 
+// GetTransactionsForProfile gets all the transactions for a given profile
 func (mal MongoAccessLayer) GetTransactionsForProfile(profile User, out interface{}) error {
 
 	// Copy the mongo session and defer its close

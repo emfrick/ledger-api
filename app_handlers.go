@@ -89,7 +89,7 @@ func (a *App) deleteSharedHandler(profile *User, w http.ResponseWriter, r *http.
 		return
 	}
 
-	sharedUser, err := a.Database.UAL.GetUserById(id)
+	sharedUser, err := a.Database.UAL.GetUserByID(id)
 
 	if err != nil {
 		log.Println(err)
