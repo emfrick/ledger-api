@@ -18,7 +18,14 @@ func (mal *MockAccessLayer) AddUser(user GoogleProfile) error {
 
 // DoesProfileExist checks if a profile exists
 func (mal *MockAccessLayer) DoesProfileExist(email string) bool {
-	return true
+
+	for _, u := range mal.Users {
+		if u.Email == email {
+			return true
+		}
+	}
+
+	return false
 }
 
 // GetUserByEmail returns a user from the given email

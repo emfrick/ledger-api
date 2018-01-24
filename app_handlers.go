@@ -5,13 +5,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/gorilla/mux"
 
 	"gopkg.in/mgo.v2/bson"
-
-	jwt "github.com/dgrijalva/jwt-go"
 )
 
 // Handler for the / route
@@ -183,16 +180,8 @@ func (a *App) authHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Create the token
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"first_name": profile.FirstName,
-		"last_name":  profile.LastName,
-		"email":      profile.Email,
-		"exp":        time.Now().Add(time.Hour * 24).Unix(),
-	})
-
-	// Sign and get the complete encoded token as a string
-	tokenString, err := token.SignedString([]byte(SecretKey))
+	// Create the JWT for the profile
+	tokenString, err := a.CreateTokenForProfile(*profile)
 
 	if err != nil {
 		writeJSONToHTTP(w, http.StatusInternalServerError, ResponseError{"Error getting token"})

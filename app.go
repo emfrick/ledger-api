@@ -1,9 +1,12 @@
 package main
 
 import (
+	"errors"
 	"log"
 	"net/http"
+	"time"
 
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/mux"
 )
 
@@ -41,4 +44,26 @@ func (a *App) initializeRoutes() {
 	a.Router.Handle("/transactions", TokenValidationHandler(a.Database, a.postTransactions)).Methods("POST")
 	a.Router.Handle("/transactions", TokenValidationHandler(a.Database, a.getTransactions)).Methods("GET")
 	a.Router.HandleFunc("/error", a.errorHandler)
+}
+
+// CreateTokenForProfile returns a JWT for the given profile
+func (a *App) CreateTokenForProfile(profile GoogleProfile) (string, error) {
+
+	// Ensure profile exists
+	if !a.Database.UAL.DoesProfileExist(profile.Email) {
+		return "", errors.New("profile does not exist")
+	}
+
+	// Create the token
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"first_name": profile.FirstName,
+		"last_name":  profile.LastName,
+		"email":      profile.Email,
+		"exp":        time.Now().Add(time.Hour * 24).Unix(),
+	})
+
+	// Sign and get the complete encoded token as a string
+	tokenString, err := token.SignedString([]byte(SecretKey))
+
+	return tokenString, err
 }

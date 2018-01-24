@@ -61,3 +61,52 @@ func TestProtectedRoutes(t *testing.T) {
 		}
 	}
 }
+
+func TestFailedToken(t *testing.T) {
+
+	profile := &main.GoogleProfile{
+		ID:            "000000000000000000000000",
+		Email:         "fakeuser@gmail.com",
+		VerifiedEmail: true,
+		FullName:      "Fake User",
+		FirstName:     "Fake",
+		LastName:      "User",
+		ProfileLink:   "http://www.example.com",
+		Picture:       "http://www.example.com",
+		Gender:        "male",
+		Locale:        "en",
+	}
+
+	_, err := app.CreateTokenForProfile(*profile)
+
+	if err == nil {
+		t.Errorf("Did not expect token for non-existent user '%s'", profile.Email)
+		return
+	}
+
+}
+
+func TestGetTokenForUser(t *testing.T) {
+
+	profile := &main.GoogleProfile{
+		ID:            "000000000000000000000000",
+		Email:         "fakeuser@gmail.com",
+		VerifiedEmail: true,
+		FullName:      "Fake User",
+		FirstName:     "Fake",
+		LastName:      "User",
+		ProfileLink:   "http://www.example.com",
+		Picture:       "http://www.example.com",
+		Gender:        "male",
+		Locale:        "en",
+	}
+
+	app.Database.UAL.AddUser(*profile)
+
+	_, err := app.CreateTokenForProfile(*profile)
+
+	if err != nil {
+		t.Errorf("Expected token for user '%s'. Got '%v'", profile.Email, err)
+		return
+	}
+}
